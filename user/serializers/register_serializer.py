@@ -12,7 +12,7 @@ class CustomRegisterSerializer(RegisterSerializer):
 
     def validate_full_name(self, full_name):
         split_full_name = full_name.split(' ')
-        if len(split_full_name) == 1:
+        if len(split_full_name) < 2 or len(full_name.split(' ')[1]) < 1:
             raise serializers.ValidationError(_('Please provide your first name and last name'))
         return full_name
 

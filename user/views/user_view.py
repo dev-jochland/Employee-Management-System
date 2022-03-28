@@ -308,7 +308,7 @@ class EmployerViewSet(viewsets.ViewSet):
             if organisation.wallet.pin is None:
                 return Response({'detail': 'Set wallet pin before making payment'}, status=status.HTTP_400_BAD_REQUEST)
 
-            verify_pin = ut.verify_wallet_pin(organisation.wallet, request.data.get('pin'))
+            verify_pin = ut.verify_wallet_pin(organisation.wallet, str(request.data.get('pin')))
             if not verify_pin:
                 return Response({'detail': _('Incorrect wallet pin provided')}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -349,7 +349,7 @@ class EmployerViewSet(viewsets.ViewSet):
             if organisation.wallet.pin is None:
                 return Response({'detail': 'Set wallet pin before making payment'}, status=status.HTTP_400_BAD_REQUEST)
 
-            verify_pin = ut.verify_wallet_pin(organisation.wallet, request.data.get('pin'))
+            verify_pin = ut.verify_wallet_pin(organisation.wallet, str(request.data.get('pin')))
             if not verify_pin:
                 return Response({'detail': _('Incorrect wallet pin provided')}, status=status.HTTP_400_BAD_REQUEST)
 

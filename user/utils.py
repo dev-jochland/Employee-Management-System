@@ -64,7 +64,7 @@ def set_pin_util(serializer, wallet, request, new_pin, user, is_organisation):
                         status=status.HTTP_400_BAD_REQUEST)
     util_serializer = serializer(wallet, data=request.data)
     util_serializer.is_valid(raise_exception=True)
-    wallet.pin = make_password(new_pin)
+    wallet.pin = make_password(str(new_pin))
     wallet.is_pin_set = True
     wallet.save(update_fields=['pin', 'is_pin_set'])
 
@@ -82,10 +82,10 @@ def change_pin_util(serializer, wallet, request, new_pin, old_pin, user, is_orga
                         status=status.HTTP_400_BAD_REQUEST)
     change_pin_serializer = serializer(wallet, data=request.data)
     change_pin_serializer.is_valid(raise_exception=True)
-    if not check_password(old_pin, encoded=wallet.pin):
+    if not check_password(str(old_pin), encoded=wallet.pin):
         return Response({'message': "your old pin is not correct, enter a valid old pin"},
                         status=status.HTTP_400_BAD_REQUEST)
-    wallet.pin = make_password(new_pin)
+    wallet.pin = make_password(str(new_pin))
     wallet.save(update_fields=['pin'])
 
     # Create Activity Log
