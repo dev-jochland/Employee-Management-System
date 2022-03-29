@@ -181,3 +181,5 @@ CELERYD_TASK_SOFT_TIME_LIMIT = 60  # secs
 DJANGO_ADMIN_PASSWORD = 'testpassword'
 
 DJANGO_ADMIN_EMAIL = 'testuser@testuser.com'
+
+GITHUB_WORKFLOW = 1

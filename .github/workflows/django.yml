@@ -10,17 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mysql:
-        image: mysql:8
+      postgres:
+        image: postgres:10.8
         env:
-          MYSQL_DATABASE: "test_action_db"
-          MYSQL_USER: "user_"
-          MYSQL_PASSWORD: "userone"
-          MYSQL_ROOT_PASSWORD: "secret_pw"
-          MYSQL_HOST: 127.0.0.1
-          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         ports:
-          - 3306:3306
+          - 5432:5432
         # check postgres container healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
       
@@ -30,8 +27,8 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-#      - name: psycopg2 prerequisites
-#        run: sudo apt-get install libpq-dev
+      - name: psycopg2 prerequisites
+        run: sudo apt-get install libpq-dev
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
