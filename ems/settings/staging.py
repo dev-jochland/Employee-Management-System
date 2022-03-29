@@ -13,7 +13,7 @@ DATABASES = {
     }
 }
 
-if bool(GITHUB_WORKFLOW):
+if os.environ.get('WORKFLOW'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
