@@ -124,29 +124,25 @@ class EmployerViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['patch'], permission_classes=[pp.IsAdmin | pp.IsSuperAdmin])
     def remove_employee(self, request):
         try:
-            organisation_id = self.request.query_params.get('organisation_id')
-            employee_email = self.request.query_params.get('employee_email')
+            employee_email = request.data.get('employee_email')
             if message := ut.validate_required_fields(
                     {
-                        'organisation_id': self.request.query_params.get('organisation_id'),
-                        'employee_email': self.request.query_params.get('employee_email'),
+                        'employee_email': request.data.get('employee_email'),
                     }
             ):
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
-            email = ut.get_authenticated_email(request)
-            admin_user = um.AppUser.objects.get(email=email)
-            if not um.OrganisationAdmin.objects.filter(organisation_id=organisation_id, admin__user__email=email):
-                return Response({'detail': _('You don\'t have access to remove an employee from this organisation')},
-                                status=status.HTTP_403_FORBIDDEN)
-            if not um.EmployeeOrganisation.objects.filter(organisation_id=organisation_id,
+            admin_email = ut.get_authenticated_email(request)
+            admin_user = um.AppUser.objects.get(email=admin_email)
+            admin_organisation = um.OrganisationAdmin.objects.get(admin__user=admin_user).organisation
+            if not um.EmployeeOrganisation.objects.filter(organisation=admin_organisation,
                                                           employee__user__email=employee_email):
                 return Response({'detail': _('This employee is not part of this organisation')},
                                 status=status.HTTP_400_BAD_REQUEST)
-            if um.EmployeeOrganisation.objects.filter(organisation_id=organisation_id,
+            if um.EmployeeOrganisation.objects.filter(organisation=admin_organisation,
                                                       employee__user__email=employee_email, is_active=False):
                 return Response({'detail': _("Employee is already deactivated from organisation")},
                                 status=status.HTTP_400_BAD_REQUEST)
-            employee = um.EmployeeOrganisation.objects.get(organisation_id=organisation_id,
+            employee = um.EmployeeOrganisation.objects.get(organisation=admin_organisation,
                                                            employee__user__email=employee_email, is_active=True)
             employee.is_active = False
             employee.save(update_fields=['is_active'])
@@ -156,37 +152,31 @@ class EmployerViewSet(viewsets.ViewSet):
                                           user_affected=employee.employee.user, is_organisation=True)
             return Response({'detail': _("Employee deactivated from organisation successfully")},
                             status=status.HTTP_200_OK)
-        except um.EmployeeOrganisation.DoesNotExist:
-            return Response({'detail': _("Employee credentials does not exist")}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'detail': _(str(e))}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['patch'], permission_classes=[pp.IsAdmin | pp.IsSuperAdmin])
     def reactivate_employee(self, request):
         try:
-            organisation_id = self.request.query_params.get('organisation_id')
-            employee_email = self.request.query_params.get('employee_email')
+            employee_email = request.data.get('employee_email')
             if message := ut.validate_required_fields(
                     {
-                        'organisation_id': self.request.query_params.get('organisation_id'),
-                        'employee_email': self.request.query_params.get('employee_email'),
+                        'employee_email': request.data.get('employee_email'),
                     }
             ):
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
-            email = ut.get_authenticated_email(request)
-            admin_user = um.AppUser.objects.get(email=email)
-            if not um.OrganisationAdmin.objects.filter(organisation_id=organisation_id, admin__user__email=email):
-                return Response({'detail': _('You don\'t have access to remove an employee from this organisation')},
-                                status=status.HTTP_403_FORBIDDEN)
-            if not um.EmployeeOrganisation.objects.filter(organisation_id=organisation_id,
+            admin_email = ut.get_authenticated_email(request)
+            admin_user = um.AppUser.objects.get(email=admin_email)
+            admin_organisation = um.OrganisationAdmin.objects.get(admin__user=admin_user).organisation
+            if not um.EmployeeOrganisation.objects.filter(organisation=admin_organisation,
                                                           employee__user__email=employee_email):
                 return Response({'detail': _('This employee is not part of this organisation')},
                                 status=status.HTTP_400_BAD_REQUEST)
-            if um.EmployeeOrganisation.objects.filter(organisation_id=organisation_id,
+            if um.EmployeeOrganisation.objects.filter(organisation=admin_organisation,
                                                       employee__user__email=employee_email, is_active=True):
                 return Response({'detail': _("Employee is already active in your organisation")},
                                 status=status.HTTP_400_BAD_REQUEST)
-            employee = um.EmployeeOrganisation.objects.get(organisation_id=organisation_id,
+            employee = um.EmployeeOrganisation.objects.get(organisation=admin_organisation,
                                                            employee__user__email=employee_email, is_active=False)
             employee.is_active = True
             employee.save(update_fields=['is_active'])
@@ -196,41 +186,34 @@ class EmployerViewSet(viewsets.ViewSet):
                                           user_affected=employee.employee.user, is_organisation=True)
             return Response({'detail': _("Employee reactivated to organisation successfully")},
                             status=status.HTTP_200_OK)
-        except um.EmployeeOrganisation.DoesNotExist:
-            return Response({'detail': _("Employee credentials does not exist")}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'detail': _(str(e))}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['patch'], permission_classes=[pp.IsSuperAdmin])
     def remove_admin(self, request):
         try:
-            organisation_id = self.request.query_params.get('organisation_id')
-            admin_email = self.request.query_params.get('admin_email')
+            admin_email = request.data.get('admin_email')
             if message := ut.validate_required_fields(
                     {
-                        'organisation_id': self.request.query_params.get('organisation_id'),
-                        'admin_email': self.request.query_params.get('admin_email'),
+                        'admin_email': request.data.get('admin_email'),
                     }
             ):
                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
-            email = ut.get_authenticated_email(request)
-            super_admin_user = um.AppUser.objects.get(email=email)
-            if not um.OrganisationAdmin.objects.filter(organisation_id=organisation_id, admin__user__email=email,
-                                                       admin_type='super_admin'):
-                return Response({'detail': _('You don\'t have access to remove an admin from this organisation')},
-                                status=status.HTTP_403_FORBIDDEN)
-            if email == admin_email.lower():
+            super_admin_email = ut.get_authenticated_email(request)
+            super_admin_user = um.AppUser.objects.get(email=super_admin_email)
+            admin_organisation = um.OrganisationAdmin.objects.get(admin__user=super_admin_user).organisation
+            if super_admin_email == admin_email.lower():
                 return Response({'detail': _("Super admin can\'t remove itself, contact product administrator.")},
                                 status=status.HTTP_400_BAD_REQUEST)
-            if not um.OrganisationAdmin.objects.filter(organisation_id=organisation_id,
+            if not um.OrganisationAdmin.objects.filter(organisation=admin_organisation,
                                                        admin__user__email=admin_email):
                 return Response({'detail': _('This admin is not part of this organisation')},
                                 status=status.HTTP_400_BAD_REQUEST)
-            if um.OrganisationAdmin.objects.filter(organisation_id=organisation_id,
+            if um.OrganisationAdmin.objects.filter(organisation=admin_organisation,
                                                    admin__user__email=admin_email, is_disabled=True):
                 return Response({'detail': _("Admin already removed from organisation")},
                                 status=status.HTTP_400_BAD_REQUEST)
-            admin = um.OrganisationAdmin.objects.get(organisation_id=organisation_id,
+            admin = um.OrganisationAdmin.objects.get(organisation=admin_organisation,
                                                      admin__user__email=admin_email, is_disabled=False)
             admin.is_disabled = True
             admin.save(update_fields=['is_disabled'])
@@ -240,8 +223,6 @@ class EmployerViewSet(viewsets.ViewSet):
                                           user_affected=admin.admin.user, is_organisation=True)
             return Response({'detail': _("Admin removed from organisation successfully")},
                             status=status.HTTP_200_OK)
-        except um.OrganisationAdmin.DoesNotExist:
-            return Response({'detail': _("Admin credentials does not exist")}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'detail': _(str(e))}, status=status.HTTP_400_BAD_REQUEST)
 

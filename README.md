@@ -17,21 +17,21 @@ Assumptions for this project:
 ## STEPS TO RUN THIS PROJECT ON YOUR MACHINE
 ```NOTE:``` You need to have docker installed locally to complete the steps below.
 - Clone the project to your local machine by opening your terminal and type:
-```bash
+```python
 git clone https://github.com/dev-jochland/Employee-Management-System.git
 ``` 
 - ```OPTIONAL``` If you are on a MacOS or Ubuntu and your docker was not running before cloning the project, type the following command in that same terminal and provide your admin password to grant permission to run the project:
-```bash
+```python
 sudo chmod 666 /var/run/docker.sock
 ```
 
 - While still in your terminal where you originally cloned the project, navigate into the cloned project by typing the following:
-```bash
+```python
 cd Employee-Management-System/
 ```
 
 - Next run the following command after navigating into the project as described above:
-```bash
+```python
 docker-compose up
 ```
 ```NOTE```: The command above would take time to complete as it would try to build the docker image, so ensure you have a fast internet, also, you may have a "timeout error" or "HTTPconnection" error, this is as a result of your internet. Be patient as it would eventually build.

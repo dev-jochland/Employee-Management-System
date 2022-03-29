@@ -2,17 +2,17 @@ from .base import *
 
 
 DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': env.str('DB_NAME'),
-            'USER': env.str('DB_USER'),
-            'PASSWORD': env.str('DB_PASSWORD'),
-            'HOST': '127.0.0.1',
-            'PORT': 5432,
-        }
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'test_test',
+        'USER': 'user_',
+        'PASSWORD': 'secret_pw',
+        'HOST': 'db',  # referencing docker db here
+        'PORT': 3306,
+        'MYSQL_ALLOW_EMPTY_PASSWORD': 'yes',
+        'ATOMIC_REQUESTS': True
     }
+}
 
-# Local memory
-EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
 REST_FRAMEWORK['TEST_REQUEST_DEFAULT_FORMAT'] = 'json'
