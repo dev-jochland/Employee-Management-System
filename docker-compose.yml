@@ -8,12 +8,10 @@ services:
       - "1775:1775"
     container_name: ems_web
     environment:
-      - MYSQL_DATABASE=test
-      - MYSQL_USER=user_
-      - MYSQL_PASSWORD=userone
-      - MYSQL_ROOT_PASSWORD=secret_pw
-      - MYSQL_HOST=db
-      - CELERY_BROKER=redis://redis:6379/0
+      POSTGRES_DB: "ems_docker_db"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      CELERY_BROKER_URL: 'redis://redis:6379/0'
     depends_on:
       - db
       - redis_db
@@ -28,22 +26,16 @@ services:
       sh -c "python manage.py collectstatic --no-input && python manage.py migrate && python manage.py createsuperuser_if_none_exists && python manage.py runserver 0.0.0.0:1775"
 
   db:
-    build:
-      context: .
-      dockerfile: ./Dockerfile_mysql
+    image: postgres:9.6
     environment:
-      - MYSQL_DATABASE=test
-      - MYSQL_USER=user_
-      - MYSQL_PASSWORD=userone
-      - MYSQL_ROOT_PASSWORD=secret_pw
-      - MYSQL_HOST=db
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      POSTGRES_DB: "ems_docker_db"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
     expose:
-      - "3306"
+      - "5432"
     restart: on-failure
-    command: --default-authentication-plugin=mysql_native_password
     volumes:
-    - ems_web_db_data:/var/lib/mysql
+    - ems_web_db_data:/var/lib/postgresql/data
     networks:
       - ems_web_net
 
@@ -62,12 +54,9 @@ services:
     user: nobody
     command: celery -A ems worker -l INFO
     environment:
-      - MYSQL_DATABASE=test
-      - MYSQL_USER=user_
-      - MYSQL_PASSWORD=userone
-      - MYSQL_ROOT_PASSWORD=secret_pw
-      - MYSQL_HOST=db
-      - CELERY_BROKER=redis://redis:6379/0
+      POSTGRES_DB: "ems_docker_db"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
     volumes:
       - .:/usr/src/app
     depends_on:

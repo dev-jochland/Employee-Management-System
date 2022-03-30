@@ -12,4 +12,4 @@ COPY . /ems_web/
 
 RUN pip install --upgrade pip
 
-RUN pip install -r config/requirements/mysql_db.txt
+RUN pip install -r config/requirements/postgres_db.txt

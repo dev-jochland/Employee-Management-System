@@ -1,17 +1,29 @@
 from .base import *
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'test_test',
+#         'USER': 'user_',
+#         'PASSWORD': 'secret_pw',
+#         'HOST': 'db',  # referencing docker db here
+#         'PORT': 3306,
+#         'MYSQL_ALLOW_EMPTY_PASSWORD': 'yes',
+#         'ATOMIC_REQUESTS': True
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test_test',
-        'USER': 'user_',
-        'PASSWORD': 'secret_pw',
-        'HOST': 'db',  # referencing docker db here
-        'PORT': 3306,
-        'MYSQL_ALLOW_EMPTY_PASSWORD': 'yes',
-        'ATOMIC_REQUESTS': True
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'PASSWORD': 'postgres',
+            'HOST': 'db',
+            'PORT': 5432,
+            'ATOMIC_REQUESTS': DEBUG
+        }
     }
-}
 
 if os.environ.get('WORKFLOW'):
     DATABASES = {
