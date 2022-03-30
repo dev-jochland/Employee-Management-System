@@ -1,5 +1,5 @@
 # Employee Management System
-```NOTE:``` Backend project implemented in **Python and Django Rest Framework with a MYSQL database** 
+```NOTE:``` Backend project implemented in **Python and Django Rest Framework** 
 
 The core functionality of this backend project allows for a ```fictional organisation``` to make payments from the organisation's virtual wallet to their worker's virtual wallet. This project could be offered in the form of SaaS for the different ```fictional organisations``` to use to manage their employees.
 
