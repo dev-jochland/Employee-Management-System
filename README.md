@@ -48,6 +48,17 @@ web_1       | Quit the server with CONTROL-C.
 ```NOTE``` You need to have Postman installed locally to try out this next step.
 - To try out the different endpoints available for the different type of users, you can access the [postman](https://documenter.getpostman.com/view/11396719/UVyoVxHM) documentation [here](https://documenter.getpostman.com/view/11396719/UVyoVxHM).
 
+## RUNNING THE TEST
+- To run the test script, type the command below while still in the folder
+```python
+docker-compose down
+```
+- The above command would shut down your docker to allow you run the next command below
+
+```python
+docker-compose run --rm web python manage.py test
+```
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 

@@ -98,9 +98,7 @@ def change_pin_util(serializer, wallet, request, new_pin, old_pin, user, is_orga
 
 
 def verify_wallet_pin(wallet, pin):
-    if not check_password(pin, wallet.pin):
-        return False
-    return True
+    return bool(check_password(pin, wallet.pin))
 
 
 def get_wallet_balance(wallet):
@@ -116,8 +114,7 @@ def get_wallet_balance(wallet):
     for _ in deposit:
         total_deposit += _.amount
 
-    balance = total_deposit - total_withdrawal
-    return balance
+    return total_deposit - total_withdrawal
 
 
 def verify_bulk_employee_data(employees, organisation):

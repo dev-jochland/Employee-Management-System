@@ -348,7 +348,7 @@ class EmployerViewSet(viewsets.ViewSet):
 
 
 class WalletViewSet(viewsets.ViewSet):
-    @action(detail=False, methods=['patch'], permission_classes=[pp.IsAdmin | pp.IsSuperAdmin | pp.IsEmployee])
+    @action(detail=False, methods=['patch'], permission_classes=[pp.IsSuperAdmin | pp.IsEmployee])
     def set_pin(self, request):
         try:
             if message := ut.validate_required_fields(
@@ -400,7 +400,7 @@ class WalletViewSet(viewsets.ViewSet):
         except Exception as e:
             return Response({'detail': _(str(e))}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['patch'], permission_classes=[pp.IsAdmin | pp.IsSuperAdmin | pp.IsEmployee])
+    @action(detail=False, methods=['patch'], permission_classes=[pp.IsSuperAdmin | pp.IsEmployee])
     def change_pin(self, request):
         try:
             if message := ut.validate_required_fields(

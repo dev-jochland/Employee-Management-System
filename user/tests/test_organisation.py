@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from user.models import EmployeeOrganisation, Organisation
+from user.models import Organisation
 
 
 class OrganisationSignUpTest(TestCase):
@@ -973,6 +973,12 @@ class OrganisationSignUpTest(TestCase):
         response = self.client.patch(reverse('organisation-profile', kwargs={'pk': organisation.id}), data=update_data,
                                      format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # organisation tries updating profile for a non existent profile
+        response = self.client.patch(reverse('organisation-profile', kwargs={'pk': 100000}), data=update_data,
+                                     format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data.get('detail'), 'Organisation does not exist')
         self.client.credentials()
 
         # organisation admin can also update company profile
@@ -1012,71 +1018,3 @@ class OrganisationSignUpTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.client.credentials()
 
-    def test_admin_pay_single_employee(self):
-        organisation1_sign_up_data = {
-            "full_name": "Company One",
-            "company_name": "Company group",
-            "email": "company1@user.com",
-            "role": "CEO",
-            "password1": "testpassword",
-            "password2": "testpassword"
-        }
-
-        organisation1_login_data = {
-            "email": "company1@user.com",
-            "password": "testpassword",
-        }
-
-        admin1_login_data = {
-            "email": "admin1@user.com",
-            "password": "testpassword",
-        }
-
-        organisation1_admin_data = {
-            "full_name": "Admin One",
-            "email": "admin1@user.com"
-        }
-
-        good_data = {
-            "full_name": "Employee Five",
-            "email": "employee5@user.com"
-        }
-
-        # organisation signs up
-        self.client.post(reverse('rest_register'), data=organisation1_sign_up_data, format='json')
-
-        # organisation1 login to get access token
-        login_org1 = self.client.post(reverse('rest_login'), data=organisation1_login_data, format='json')
-        organisation1_access_token = login_org1.data.get('access_token')
-
-        # organisation 1 adds admin 1
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer {}'.format(organisation1_access_token))
-        self.client.post(reverse('organisation-add-admin'), data=organisation1_admin_data,
-                         format='json')
-
-        # admin1 login to get access token
-        login_admin1 = self.client.post(reverse('rest_login'), data=admin1_login_data, format='json')
-        admin1_access_token = login_admin1.data.get('access_token')
-
-        # organisation admin add employee with good data
-        response = self.client.post(reverse('organisation-add-employee'), data=good_data,
-                                    format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('detail'), 'Employee added successfully with default password: testpassword')
-        self.client.credentials()
-
-        employee_login_data = {
-            "email": "employee5@user.com",
-            "password": "testpassword",
-        }
-
-        # added employee login to get access token
-        login_employee = self.client.post(reverse('rest_login2'), data=employee_login_data, format='json')
-        employee_access_token = login_employee.data.get('access_token')
-
-        # added employee tries getting admins
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer {}'.format(employee_access_token))
-        response = self.client.get(reverse('organisation-admins'))
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(response.data.get('detail'), 'You do not have permission to perform this action.')
-        self.client.credentials()
